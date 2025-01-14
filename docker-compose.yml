@@ -1,0 +1,31 @@
+services:
+  mariadb:
+    image: mariadb:10.8.3
+    container_name: seller-mariadb-10.8
+    # I know - this is shit, but for the test task it's okay
+    command: --default-authentication-plugin=mysql_native_password
+    user: root
+    restart: unless-stopped
+    ports:
+      - ${DB_PORT}:3306
+    working_dir: /var/lib/mysql/
+    volumes:
+      - db-data:/var/lib/mysql/
+      - ./be/prisma/init.sql:/docker-entrypoint-initdb.d/init.sql
+    environment:
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    networks:
+      static-network:
+        ipv4_address: 173.25.0.5
+
+volumes:
+  db-data:
+    name: "seller_wix"
+
+networks:
+  static-network:
+    name: seller_static-network
+    ipam:
+      driver: default
+      config:
+        - subnet: 173.25.0.0/16
